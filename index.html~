@@ -1,0 +1,68 @@
+<!doctype html>
+<title>graph</title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.2/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<canvas id="myChart"></canvas>
+<script>
+//let socket = io();
+
+//socket.on("send data", function(data) {
+//  document.write(data + "<br>");
+//});
+</script>
+<script>                                                                                   
+  function addData(chart, label, data) {                                                   
+    chart.data.labels.push(label);                                                         
+    chart.data.datasets.forEach((dataset) => {                                             
+      dataset.data.push(data);                                                             
+    });                                                                                    
+    chart.update();                                                                        
+  }                                                                                        
+                                                                                           
+  let socket = io();                                                                       
+                                                                                           
+  socket.on("first connect", function(data) {                                              
+  let i;                                                                                 
+  for (i in data) {                                                                      
+  addData(myChart, moment(data[i].time).format("HH:mm"), data[i].lux);                
+  }                                                                                      
+  document.getElementById("time").innerHTML ="<font size=5>time: " + moment(data[i].time).format("YYYY/MM/DD HH:mm") + "</font>";                                                 
+  document.getElementById("lux").innerHTML = "<font size=5>lux: " + data[i].lux + "</font>";                                                                                     
+  });                                                                                      
+  
+  socket.on("new lux", function(data) {                                                    
+  document.getElementById("time").innerHTML ="<font size=5>time: " + moment(data.time).format("YYYY/MM/DD HH:mm") + "</font>";                                                     
+  document.getElementById("lux").innerHTML = "<font size=5>lux : " + data[0] + "</font>";                                                                                         
+  addData(myChart, moment(data.time).format("HH:mm"), data[0]);                        
+  });                                                                                      
+</script>  
+
+
+
+<script>
+  let ctx1 = document.getElementById("myChart").getContext("2d");                         
+  ctx1.canvas.height = 100;                                                                
+  let myChart1 = new Chart(ctx1, {                                                         
+  type: "line",                                                                            
+  data: {                                                                                  
+    labels: [],                                                                            
+    datasets: [{                                                                           
+      label: "lux",                                                                        
+      data: [],                                                                            
+      backgroundColor: "rgba(153,255,51,0.4)"                                              
+        }]                                                                                 
+  },                                                                                       
+  options: {                                                                               
+    scales: {                                                                              
+      yAxes: [{                                                                            
+        ticks: {                                                                           
+          beginAtZero: true,                                                               
+          min: 0,                                                                          
+          }                                                                                
+        }]                                                                                 
+    }                                                                                      
+  }                                                                                        
+  });                                                                                      
+         
+</script>  

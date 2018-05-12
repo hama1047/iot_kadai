@@ -1,0 +1,20 @@
+var express = require('express');
+var app = express();
+var ejs = require("ejs")
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+import * as csv from "csv";
+
+//app.set('view options', { layout: false });
+//app.set('view engine','ejs');
+
+app.get('/', function (req, res) {
+  console.log(req.quary.lux);
+  io.sockets.send(req.quary.lux)
+  res.redirect(__dirname + "/chart.html");
+});
+
+
+app.listen(15071, function () {
+  console.log('Example app listening on port 15071!');
+});
