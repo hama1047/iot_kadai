@@ -1,68 +1,93 @@
 <!doctype html>
-<title>graph</title>
-<script src="/socket.io/socket.io.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.2/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
-<canvas id="myChart"></canvas>
+<head>
+  <title>graph</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.2/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
+</head>
+<body>
+  <center>
+    <p><font size="5">Todays lux graph</font></p>                              
+    <canvas id="myChart"></canvas>
+    <p><font size="5">Todays temperature graph</font></p>
+    <canvas id="myChart2"></canvas>
+  </center>                                                                     
+<body>                                                                          
 <script>
-//let socket = io();
 
-//socket.on("send data", function(data) {
-//  document.write(data + "<br>");
-//});
+//データを更新
+
+
+    //socket.ioでdataを受信、反映する
+    
+    let socket = io();
+
+　　socket.on("send data", function(data) {
+      myChart.data.labels.push(data[0]);
+      myChart2.data.labels.push(data[0]);
+      myChart2.data.datasets.forEach((dataset) => {
+        dataset.data.push(data[2]);
+    });
+      myChart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data[1]);
+    });
+      myChart.update();
+      myChart2.update();
+    });
 </script>
-<script>                                                                                   
-  function addData(chart, label, data) {                                                   
-    chart.data.labels.push(label);                                                         
-    chart.data.datasets.forEach((dataset) => {                                             
-      dataset.data.push(data);                                                             
-    });                                                                                    
-    chart.update();                                                                        
-  }                                                                                        
-                                                                                           
-  let socket = io();                                                                       
-                                                                                           
-  socket.on("first connect", function(data) {                                              
-  let i;                                                                                 
-  for (i in data) {                                                                      
-  addData(myChart, moment(data[i].time).format("HH:mm"), data[i].lux);                
-  }                                                                                      
-  document.getElementById("time").innerHTML ="<font size=5>time: " + moment(data[i].time).format("YYYY/MM/DD HH:mm") + "</font>";                                                 
-  document.getElementById("lux").innerHTML = "<font size=5>lux: " + data[i].lux + "</font>";                                                                                     
-  });                                                                                      
-  
-  socket.on("new lux", function(data) {                                                    
-  document.getElementById("time").innerHTML ="<font size=5>time: " + moment(data.time).format("YYYY/MM/DD HH:mm") + "</font>";                                                     
-  document.getElementById("lux").innerHTML = "<font size=5>lux : " + data[0] + "</font>";                                                                                         
-  addData(myChart, moment(data.time).format("HH:mm"), data[0]);                        
-  });                                                                                      
-</script>  
-
-
-
 <script>
-  let ctx1 = document.getElementById("myChart").getContext("2d");                         
-  ctx1.canvas.height = 100;                                                                
-  let myChart = new Chart(ctx1, {                                                         
-  type: "line",                                                                            
-  data: {                                                                                  
-    labels: [],                                                                            
-    datasets: [{                                                                           
-      label: "lux",                                                                        
-      data: [],                                                                            
-      backgroundColor: "rgba(153,255,51,0.4)"                                              
-        }]                                                                                 
-  },                                                                                       
-  options: {                                                                               
-    scales: {                                                                              
-      yAxes: [{                                                                            
-        ticks: {                                                                           
-          beginAtZero: true,                                                               
-          min: 0,                                                                          
-          }                                                                                
-        }]                                                                                 
-    }                                                                                      
-  }                                                                                        
-  });                                                                                      
-         
-</script>  
+
+    //グラフ描写
+    
+    let ctx = document.getElementById("myChart").getContext("2d");
+    ctx.canvas.height = 100;
+    let myChart = new Chart(ctx, {
+     type: "line",
+     data: {
+     labels: [],
+     datasets: [{
+     label: "lux",
+     data: [],
+     backgroundColor: "rgba(153,255,51,0.4)"
+     }]
+   },
+     options: {
+     scales: {
+     yAxes: [{
+     ticks: {
+           beginAtZero: true,
+     min: 0,
+     }
+     }]
+     }
+   }
+     });
+
+let ctx2 = document.getElementById("myChart2").getContext("2d");
+    ctx2.canvas.height = 100;
+    let myChart2 = new Chart(ctx2, {
+     type: "line",
+     data: {
+     labels: [],
+     datasets: [{
+     label: "tmp",
+     data: [],
+     backgroundColor: "rgba(255,51,102,0.4)"
+     }]
+   },
+     options: {
+     scales: {
+     yAxes: [{
+     ticks: {
+           beginAtZero: true,
+     min: 0,
+     }
+     }]
+     }
+   }
+     });
+
+    
+ </script>  
+</head>
+

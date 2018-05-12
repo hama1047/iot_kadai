@@ -7,27 +7,29 @@ moment().format();
 const fs = require('fs');
 const filename = 'sensorData.csv';
 const csv = require('csv');
+const csvSync = require('csv-parse/lib/sync');
+
 
 app.get('/putdata', function (req, res) {
     let lux = req.query.lux;
+    let tmp = req.query.tmp;
     let dt = new Date();
-    //console.log(lux);
     req.query.time = dt;
-    let formatted  = dt.toFormat("YYYY-MMDD-HH24:MI.SS");
-    //console.log(formatted);
+    let time  = dt.toFormat("YYYY-MMDD-HH24:MI.SS");
     res.send();
-    const input = [formatted +',' + lux + '\n'];
+    const input = [time +',' + lux + ',' + tmp + '\n'];
     csv.stringify(input, function(err, output){
-	console.log(req.query.lux);
-	console.log(req.query.tmp);
-	console.log(req.query.hum);
+	console.log(time);
+	console.log(lux);
+	console.log(tmp);
 	fs.appendFile(filename, output, function (err) {
 	    if (err) {
 		throw err;
 	    }
 	});
     });
-    io.emit("send data",lux);
+    var data = [time,lux,tmp];
+    io.emit("send data",data);
 });
 
 app.get('/', function (req, res) {
@@ -36,8 +38,10 @@ app.get('/', function (req, res) {
 
 io.on("connection", function(socket){
   let dt = new Date();
-  let time = dt.toFormat("YYYY-MM-DD");
-  io.emit("first connect",filename);
+  let time = dt.toFormat("YYYY-MMDD-HH24:MI.SS");
+  let data = fs.readFileSync(filename);
+  let res = csvSync(data);
+  io.emit("first connect",res);
 });
 
 http.listen(15071, function () {
